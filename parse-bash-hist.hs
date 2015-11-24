@@ -10,15 +10,17 @@ main :: IO ()
 main = do
   args <- getArgs
   ss <- mapM readFile args
-  let ps = mapM sortHist $ zip args ss
+  let ps = map sortHist $ zip args ss
   let res = foldr merge [] ps
   mapM_ printHist res
 
+printHist :: Show a => (a, String) -> IO ()
 printHist (i, c) = do
   putChar '#'
   print i
   putStrLn c
 
+sortHist :: (FilePath, String) -> [(Int, [Char])]
 sortHist (f, s) =
   case parseFile f s of
     Left e  -> [(0, "Error parsing input:" ++ show e)]
