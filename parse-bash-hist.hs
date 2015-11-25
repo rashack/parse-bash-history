@@ -10,7 +10,7 @@ main :: IO ()
 main = do
   args <- getArgs
   ss <- mapM readFile args
-  let ps = map sortHist $ zip args ss
+  let ps = zipWith (curry sortHist) args ss
   let res = foldr merge [] ps
   mapM_ printHist res
 
@@ -20,7 +20,7 @@ printHist (i, c) = do
   print i
   putStrLn c
 
-sortHist :: (FilePath, String) -> [(Int, [Char])]
+sortHist :: (FilePath, String) -> [(Int, String)]
 sortHist (f, s) =
   case parseFile f s of
     Left e  -> [(0, "Error parsing input:" ++ show e)]
