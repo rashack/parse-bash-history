@@ -27,12 +27,12 @@ sortHist (f, s) =
     Right r -> sort r
 
 parseFile :: FilePath -> String -> Either ParseError [(Int, String)]
-parseFile f s = parse tryParse f s
+parseFile f s = parse parseElems f s
 
-tryParse = try bashHistoryFile
-           <|> (histCmd >> bashHistoryFile)
+parseElems = many discardNonTimestamped
 
-bashHistoryFile = many1 histElem
+discardNonTimestamped = try histElem
+                        <|> (histCmd >> discardNonTimestamped)
 
 histElem :: GenParser Char st (Int, String)
 histElem = do
@@ -47,7 +47,7 @@ histTime = do
   return num
 
 histCmd = do
-  cmd <- many1 (noneOf "\n")
+  cmd <- many (noneOf "\n")
   newline
   return cmd
 
