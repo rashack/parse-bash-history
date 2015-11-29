@@ -12,7 +12,7 @@ main = do
   ss <- mapM readFile args
   let ps = zipWith (curry sortHist) args ss
   let res = foldr merge [] ps
-  mapM_ printHist res
+  mapM_ printHist $ uniq res
 
 printHist :: Show a => (a, String) -> IO ()
 printHist (i, c) = do
@@ -57,3 +57,8 @@ merge xs [] = xs
 merge (x:xs) (y:ys)
   | x <= y    = x : merge xs (y:ys)
   | otherwise = y : merge (x:xs) ys
+
+uniq (x:[]) = x:[]
+uniq ((t0,c0) : (t1,c1) : xs)
+  | c0 == c1 = uniq ((t1,c1):xs)
+  | c0 /= c1 = (t0,c0) : uniq ((t1,c1):xs)
