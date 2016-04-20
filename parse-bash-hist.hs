@@ -4,15 +4,21 @@ module Main where
 
 import Data.List
 import System.Environment
+import System.IO
 import Text.ParserCombinators.Parsec
 
 main :: IO ()
 main = do
   args <- getArgs
-  ss <- mapM readFile args
+  ss <- mapM readBinaryFile args
   let ps = zipWith (curry sortHist) args ss
   let res = foldr merge [] ps
   mapM_ printHist $ uniq res
+
+readBinaryFile file = do
+  h <- openFile file ReadMode
+  hSetBinaryMode h True
+  hGetContents h
 
 printHist :: Show a => (a, String) -> IO ()
 printHist (i, c) = do
@@ -58,7 +64,7 @@ merge (x:xs) (y:ys)
   | x <= y    = x : merge xs (y:ys)
   | otherwise = y : merge (x:xs) ys
 
-uniq (x:[]) = x:[]
+uniq [x] = [x]
 uniq ((t0,c0) : (t1,c1) : xs)
   | c0 == c1 = uniq ((t1,c1):xs)
   | c0 /= c1 = (t0,c0) : uniq ((t1,c1):xs)
