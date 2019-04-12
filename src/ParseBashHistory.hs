@@ -1,24 +1,13 @@
-#!/usr/bin/env runhaskell
-
-module Main where
+module ParseBashHistory
+  ( merge
+  , printHist
+  , sortHist
+  , uniq
+  ) where
 
 import Data.List
-import System.Environment
-import System.IO
-import Text.ParserCombinators.Parsec
-
-main :: IO ()
-main = do
-  args <- getArgs
-  ss <- mapM readBinaryFile args
-  let ps = zipWith (curry sortHist) args ss
-  let res = foldr merge [] ps
-  mapM_ printHist $ uniq res
-
-readBinaryFile file = do
-  h <- openFile file ReadMode
-  hSetBinaryMode h True
-  hGetContents h
+import Text.Parsec
+import Text.Parsec.String
 
 printHist :: Show a => (a, String) -> IO ()
 printHist (i, c) = do
